@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  www:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8004:80"
+    volumes:
+      - ./www:/var/www/html
+    depends_on:
+      - db
+    networks:
+      - books_network
+
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: abhishek
+      MYSQL_DATABASE: bookstore
+      MYSQL_USER: abhishek
+      MYSQL_PASSWORD: abhishek
+    ports:
+      - "3310:3306"  # Corrected port mapping
+    volumes:
+      - ./database:/docker-entrypoint-initdb.d
+      - db_data:/var/lib/mysql
+    networks:
+      - books_network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - "82:80"
+    environment:
+      PMA_HOST: db  # Add this line to specify the MySQL hostname
+      MYSQL_ROOT_PASSWORD: abhishek
+      MYSQL_USER: abhishek
+      MYSQL_PASSWORD: abhishek
+    depends_on:
+      - db
+    networks:
+      - books_network
+
+networks:
+  books_network:
+
+volumes:
+  db_data:
